@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+//cource or programs
+model Course {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  isProgram Boolean @default(false)
+  price    Float
+  videos   Video[] 
+  purchases Purchase[]  // One-to-many relation with Purchase
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+model Video {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  url       String   // URL of the video
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String   @db.ObjectId  // Foreign key to Course
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+// Join table to represent a user's purchase of a course
+model Purchase {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId      String
+  course       Course   @relation(fields: [courseId], references: [id])
+  courseId     String   @db.ObjectId  // Foreign key to Course
+  purchaseDate DateTime @default(now())  // When the purchase was made
+  //agreement docs
+  photo String?
+  selfVideo String?
+  bankStatement String?
+  identity String?
+  signature String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+
+//npx prisma db push  //if you update your schema
+//npm prisma studio   //for view your database
